@@ -20,7 +20,7 @@ REF_FA=/scratch/monoallelic/hm343/daphnia/genome/PGA_assembly_DmagnaV3.fasta
 # Remember to index the ref genome 1st: bwa index <genome_file>
 
 # Align all fasta files to the reference
-for file in $(ls *1.fastq)
+for file in $(ls *_1.fq.gz)
 do
 	base=$(basename ${file} "_1.fq.gz")
 	bwa mem -t 16 ${REF_FA} ${base}_1.fastq ${base}_2.fastq > ${base}.sam
