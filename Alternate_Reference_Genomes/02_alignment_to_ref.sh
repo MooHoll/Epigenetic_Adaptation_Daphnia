@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -N alignment_to_ref
-#PBS -l walltime=12:00:00
+#PBS -l walltime=48:00:00
 #PBS -l vmem=20gb
 #PBS -m bea
 #PBS -M hollie_marshall@hotmail.co.uk
@@ -23,5 +23,5 @@ REF_FA=/scratch/monoallelic/hm343/daphnia/genome/PGA_assembly_DmagnaV3.fasta
 for file in $(ls *_1.fq.gz)
 do
 	base=$(basename ${file} "_1.fq.gz")
-	bwa mem -t 16 ${REF_FA} ${base}_1.fastq ${base}_2.fastq > ${base}.sam
+	bwa mem -t 16 ${REF_FA} ${base}_1.fq.gz ${base}_2.fq.gz > ${base}.sam
 done
