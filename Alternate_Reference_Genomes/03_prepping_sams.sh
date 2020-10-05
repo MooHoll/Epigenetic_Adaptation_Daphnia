@@ -15,7 +15,7 @@ done
 #!/bin/bash
 
 #PBS -N sam_to_bam
-#PBS -l walltime=30:00:00
+#PBS -l walltime=06:00:00
 #PBS -l vmem=20gb
 #PBS -m bea
 #PBS -M hollie_marshall@hotmail.co.uk
@@ -28,23 +28,23 @@ cd $PBS_O_WORKDIR
 module load samtools/1.9
 
 # Make a bam and sort by name (pipes didn't work because of some weird thing with the sorting)
-for file in $(ls *sam)
-do
-    base=$(basename $file ".sam")
-    samtools sort -n -O bam -o ${base}_sorted.bam ${file}
-done
+#for file in $(ls *sam)
+#do
+#    base=$(basename $file ".sam")
+#    samtools sort -n -O bam -o ${base}_sorted.bam ${file}
+#done
 
 # Run fixmate
 for file in $(ls *bam)
 do
     base=$(basename $file "_sorted.bam")
-    samtools fixmate -m ${file} ${base}_fixname.bam
+    samtools fixmate -m ${file} ${base}_fixmate.bam
 done
 
 # Sort again by coordinate now
-for file in $(ls *_fixname.bam)
+for file in $(ls *_fixmate.bam)
 do
-    base=$(basename $file "_fixname.bam")
+    base=$(basename $file "_fixmate.bam")
     samtools sort -o ${base}_sorted_coord.bam ${file}
 done
 
@@ -55,6 +55,6 @@ do
     samtools markdup -r -s ${file} ${base}_nodups_final.bam
 done
 
-rm *fixmate.bam
-rm *numbersort.bam
-rm *sorted_coord.bam
+#rm *fixmate.bam
+#rm *_sorted.bam
+#rm *sorted_coord.bam
