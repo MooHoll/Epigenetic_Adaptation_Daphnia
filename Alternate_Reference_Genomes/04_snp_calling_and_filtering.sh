@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -N SNP_calling
-#PBS -l walltime=41:00:00
+#PBS -l walltime=30:00:00
 #PBS -l vmem=20gb
 #PBS -m bea
 #PBS -M hollie_marshall@hotmail.co.uk
@@ -57,7 +57,7 @@ module load vcftools/0.1.14
 # Takes 1min per sample (can run on login nodes)
 for file in $(ls *.vcf)
 do
-    base=$(basename $file "_nodups_final.bam.freebayes.vcf")
+    base=$(basename $file ".vcf")
     vcftools \
     --vcf ${file} \
     --minQ 20 \
