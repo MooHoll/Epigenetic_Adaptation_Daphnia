@@ -43,7 +43,7 @@ done
 #!/bin/bash
 
 #PBS -N snp_filtering
-#PBS -l walltime=01:00:00
+#PBS -l walltime=00:30:00
 #PBS -l vmem=20gb
 #PBS -m bea
 #PBS -M hollie_marshall@hotmail.co.uk
