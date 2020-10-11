@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -N gatk_alternate_reference
-#PBS -l walltime=04:00:00
+#PBS -l walltime=01:00:00
 #PBS -l vmem=20gb
 #PBS -m bea
 #PBS -M hollie_marshall@hotmail.co.uk
@@ -43,4 +43,3 @@ do
     -V ${file} \
     -o ${OUTPUT}/${base}.fasta 
 done
-
