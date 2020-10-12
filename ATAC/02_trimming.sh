@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -N trimming
-#PBS -l walltime=32:00:00
+#PBS -l walltime=14:00:00
 #PBS -l vmem=20gb
 #PBS -m bea
 #PBS -M hollie_marshall@hotmail.co.uk

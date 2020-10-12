@@ -5,7 +5,7 @@
 #!/bin/bash
 
 #PBS -N genome_prep
-#PBS -l walltime=03:00:00
+#PBS -l walltime=02:00:00
 #PBS -l vmem=20gb
 #PBS -m bea
 #PBS -M hollie_marshall@hotmail.co.uk
