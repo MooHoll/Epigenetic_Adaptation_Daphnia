@@ -37,24 +37,25 @@ done
 #!/bin/bash
 
 #PBS -N alignment_to_ref
-#PBS -l walltime=35:00:00
+#PBS -l walltime=00:03:00
 #PBS -l vmem=20gb
 #PBS -m bea
 #PBS -M hollie_marshall@hotmail.co.uk
-#PBS -l nodes=1:ppn=8
+#PBS -l nodes=1:ppn=16
+#PBS -q devel
 
 # Run script in the working directory it was submitted in
 cd $PBS_O_WORKDIR 
 
 # Load software needed
-module load bismark/0.18.1
 module load bowtie2/2.2.9
 module load samtools/1.3.2
 
 for file in $(ls *1.fq.gz)
 do
     base=$(basename ${file} "_1.fq.gz")
-    bismark --multicore 3 -o alignment_to_alt_refs \
-    /scratch/monoallelic/hm257/daphnia/alternate_refs/${base} \
+    /scratch/monoallelic/hm257/hm343_stuff/bin/Bismark-0.22.3/bismark \
+    --multicore 8 -o alignment_to_alt_refs \
+    /scratch/monoallelic/hm257/hm343_stuff/WGS/alternate_refs/${base} \
     -1 ${base}_1.fq.gz -2 ${base}_2.fq.gz
 done

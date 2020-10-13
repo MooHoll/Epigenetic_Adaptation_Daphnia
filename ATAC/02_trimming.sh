@@ -19,5 +19,5 @@ do
 	base=$(basename $file "1.fq.gz")
 	trimmomatic PE -threads 16 ${base}1.fq.gz ${base}2.fq.gz \
 	${base}trim_1.fq.gz ${base}trim_unpaired_1.fq.gz ${base}trim_2.fq.gz ${base}trim_unpaired_2.fq.gz \
-	ILLUMINACLIP:illumina_adapters.fa:2:30:10 LEADING:30 TRAILING:30 MINLEN:40 HEADCROP:10
+	ILLUMINACLIP:nextera_adapters.fa:2:30:10 LEADING:30 TRAILING:30 MINLEN:40 HEADCROP:10
 done
