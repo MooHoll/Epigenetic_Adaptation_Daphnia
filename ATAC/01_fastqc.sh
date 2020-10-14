@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -N fastqc
-#PBS -l walltime=09:00:00
+#PBS -l walltime=08:00:00
 #PBS -l vmem=20gb
 #PBS -m bea
 #PBS -M hollie_marshall@hotmail.co.uk
