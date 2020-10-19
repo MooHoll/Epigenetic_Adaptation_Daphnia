@@ -5,7 +5,7 @@
 #!/bin/bash
 
 #PBS -N sorting_bams
-#PBS -l walltime=08:30:00
+#PBS -l walltime=01:00:00
 #PBS -l vmem=20gb
 #PBS -m bea
 #PBS -M hollie_marshall@hotmail.co.uk
@@ -15,13 +15,13 @@
 cd $PBS_O_WORKDIR 
 
 # Load software needed
-module load samtools/1.3.2
+module load samtools/1.9
 
 # Sort all bams
 for file in $(ls *deduplicated.bam)
 do
   	base=$(basename $file "1_bismark_bt2_pe.deduplicated.bam")
-    samtools sort -o ${base}deduplicated_sorted.bam ${file}
+    samtools sort -@ 6 -o ${base}deduplicated_sorted.bam ${file}
 done
 
 ############################################################################

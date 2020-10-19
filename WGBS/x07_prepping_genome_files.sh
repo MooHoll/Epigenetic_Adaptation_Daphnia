@@ -1,39 +1,10 @@
 ############################################################################
-### Extract methylation information to be used for weighted meth calculation
-############################################################################
-
-#!/bin/bash
-
-#PBS -N m_extraction
-#PBS -l walltime=21:00:00
-#PBS -l vmem=20gb
-#PBS -m bea
-#PBS -M hollie_marshall@hotmail.co.uk
-#PBS -l nodes=1:ppn=8
-
-# Run in current working directory
-cd $PBS_O_WORKDIR
-
-# Load modules
-module load bismark/0.18.1
-module load samtools/1.3.2
-
-for file in $(ls *.bam)
-do
-    base=$(basename ${file} "_1_bismark_bt2_pe.deduplicated.bam")
-    bismark_methylation_extractor -p \
-    --comprehensive \
-    --multicore 2 \
-    --bedgraph \
-    --cytosine_report \
-    --genome_folder /scratch/monoallelic/hm257/daphnia/alternate_references/${base} \
-    ${file}
-done
-
-
-############################################################################
 ### Prepare files
 ############################################################################
+
+#### NOTE: THIS NEEDS RE-THINKING AS WE WANT TO DO IT FOR EACH SAMPLE AS
+# WE HAVE THE GENOME FOR EACH AND EACH ONE MIGHT HAVE DIFFERENT CpGs.
+
 
 # Use one genome-wide cytosine report to create a file which consists of 
 # just the scaffold name and the CpG position in a text file
