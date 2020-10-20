@@ -15,7 +15,7 @@ Not happy with the insert size distribution, only checked sample 0_1. I will re-
 
 <img src="../images/0_1_insertsize_with_bins.jpeg" height="240">
 
-This is how 0_1 looks.</br>
+This is how 0_1 looks, we don't see a nice big peak around 100bp and we have lots of other weird larger peaks.</br>
 
 <img src="../images/insert_example.png" height="240">
 
