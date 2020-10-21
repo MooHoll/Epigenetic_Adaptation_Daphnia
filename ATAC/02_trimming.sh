@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -N trimming
-#PBS -l walltime=14:00:00
+#PBS -l walltime=08:00:00
 #PBS -l vmem=20gb
 #PBS -m bea
 #PBS -M hollie_marshall@hotmail.co.uk
@@ -19,5 +19,7 @@ do
 	base=$(basename $file "1.fq.gz")
 	trimmomatic PE -threads 16 ${base}1.fq.gz ${base}2.fq.gz \
 	${base}trim_1.fq.gz ${base}trim_unpaired_1.fq.gz ${base}trim_2.fq.gz ${base}trim_unpaired_2.fq.gz \
-	ILLUMINACLIP:nextera_adapters.fa:2:30:10 LEADING:30 TRAILING:30 MINLEN:40 HEADCROP:10
+	ILLUMINACLIP:nextera_adapters.fa:2:30:10 
 done
+
+# LEADING:30 TRAILING:30 MINLEN:40 HEADCROP:10
