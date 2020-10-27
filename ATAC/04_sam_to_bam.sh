@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -N sam_to_bam
-#PBS -l walltime=12:00:00
+#PBS -l walltime=10:00:00
 #PBS -l vmem=20gb
 #PBS -m bea
 #PBS -M hollie_marshall@hotmail.co.uk

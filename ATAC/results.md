@@ -21,3 +21,4 @@ This is how 0_1 looks, we don't see a nice big peak around 100bp and we have lot
 
 This is how it should look, taken from [here](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-020-1929-3).</br>
 
+After re-running trimming the quality scores per base aren't great so I will just stick with the original harsh trimmed data and see how all samples look.
