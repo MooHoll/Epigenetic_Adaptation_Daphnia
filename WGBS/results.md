@@ -12,5 +12,8 @@ Alignment isn't great but nothing to be done, average of 48%.
 
 Deduplication also looks good with 24% average duplicates.
 
-ADD LINK TO THE EXCEL SUPPLEMENTARY TABLE HERE **(still need to make this)**.
+Binomial methylation calls have been made for Anurag and the population epigenetics analysis.
+
+Christian is carrying out the differential methylation analysis.
+
 ---
