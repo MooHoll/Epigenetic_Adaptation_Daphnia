@@ -11,20 +11,21 @@ library(dplyr)
 
 # -------------------------------------------------------------------------
 
-file.list <- list("eutrophic-12_3_CpG.txt","eutrophic-12_4_CpG.txt","eutrophic-12.5_1_CpG.txt",
-                  "eutrophic-13_1_CpG.txt", "eutrophic-13_2_CpG.txt", "eutrophic-13_3_CpG.txt",
-                  "eutrophic-13.5_1_CpG.txt", "eutrophic-14.5_1_CpG.txt", "eutrophic-15.5_1_CpG.txt",
-                  "pesticide-6_2_CpG.txt", "pesticide-6_3_CpG.txt", "pesticide-7_3_CpG.txt",
-                  "pesticide-7.5_4_CpG.txt", "pesticide-7_5_CpG.txt", "pesticide-8.5_3_CpG.txt",
-                  "pesticide-9_20_CpG.txt", "pesticide-9.5_1_CpG.txt", "pesticide-9.5_3_CpG.txt",
-                  "pesticide-9_6_CpG.txt", "pristine-36_01_CpG.txt", "pristine-36_02_CpG.txt",
-                  "pristine-48_01_CpG.txt", "pristine-48_02_CpG.txt", "pristine-53_01_CpG.txt",
-                  "pristine-54_01_CpG.txt", "pristine-54_02_CpG.txt", "pristine-74_01_CpG.txt",
-                  "pristine-77_01_CpG.txt", "pristine-88_01_CpG.txt", "recovery-0_1_CpG.txt",
-                  "recovery-0_2_CpG.txt", "recovery-0_4_CpG.txt", "recovery-1_2_CpG.txt",
-                  "recovery-2_1_CpG.txt", "recovery-2.5_11_CpG.txt", "recovery-2.5_9_CpG.txt",
-                  "recovery-3.5_15_CpG.txt", "recovery-3.5_1_CpG.txt", "recovery-3.5_2_CpG.txt",
-                  "recovery-3_6_CpG.txt")
+file.list <- list("EP_LRV12_3_CpG.txt","EP_LRV12_4_CpG.txt","EP_LRV12_5_1_CpG.txt",
+                  "EP_LRV13_1_CpG.txt","EP_LRV13_2_CpG.txt","EP_LRV13_3_CpG.txt",
+                  "EP_LRV13_5_1_CpG.txt","EP_LRV14_5_1_CpG.txt","EP_LRV15_5_1_CpG.txt",
+                  "PP_LRV6_2_CpG.txt","PP_LRV6_3_CpG.txt","PP_LRV7_3_CpG.txt",
+                  "PP_LRV7_5_4_CpG.txt","PP_LRV7_5_CpG.txt","PP_LRV8_5_3_CpG.txt",
+                  "PP_LRV9_20_CpG.txt","PP_LRV9_5_1_CpG.txt","PP_LRV9_5_3_CpG.txt",
+                  "PP_LRV9_6_CpG.txt","PR_LR2_36_01_CpG.txt","PR_LR2_36_02_CpG.txt",
+                  "PR_LR2_48_01_CpG.txt","PR_LR2_48_02_CpG.txt","PR_LR3_53_01_CpG.txt",
+                  "PR_LR2_54_01_CpG.txt","PR_LR2_54_02_CpG.txt","PR_LR3_74_01_CpG.txt",
+                  "PR_LR3_77_01_CpG.txt","PR_LR3_88_01_CpG.txt","CWP_LRV0_1_CpG.txt",
+                  "CWP_LRV0_2_CpG.txt","CWP_LRV0_4_CpG.txt","CWP_LRV1_2_CpG.txt",
+                  "CWP_LRV2_1_CpG.txt","CWP_LRV2_5_11_CpG.txt","CWP_LRV2_5_9_CpG.txt",
+                  "CWP_LRV3_5_15_CpG.txt","CWP_LRV3_5_1_CpG.txt","CWP_LRV3_5_2_CpG.txt",
+                  "CWP_LRV3_6_CpG.txt")
+
 
 treat_conditions <- c(0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3)
 
@@ -33,7 +34,7 @@ raw_data <- methRead(file.list,
                                       "EP_LRV13_1", "EP_LRV13_2", "EP_LRV13_3",
                                       "EP_LRV13_5_1", "EP_LRV14_5_1", "EP_LRV15_5_1",
                                       "PP_LRV6_2", "PP_LRV6_3", "PP_LRV7_3",
-                                      "PP_LRV7_5_4", "PP_LRV7_4", "PP_LRV8_5_3",
+                                      "PP_LRV7_5_4", "PP_LRV7_5", "PP_LRV8_5_3",
                                       "PP_LRV9_20", "PP_LRV9_5_1", "PP_LRV9_5_3",
                                       "PP_LRV9_6", "PR_LR2_36_01", "PR_LR2_36_02",
                                       "PR_LR2_48_01", "PR_LR2_48_02", "PR_LR3_53_01",
@@ -44,7 +45,7 @@ raw_data <- methRead(file.list,
                                       "CWP_LRV3_5_15", "CWP_LRV3_5_1", "CWP_LRV3_5_2",
                                       "CWP_LRV3_6"),
                      treatment = treat_conditions,
-                     assembly="daphmag_0_1",
+                     assembly="daphmag_LRV0_1",
                      context="CpG")
 
 filtered_data <- filterByCoverage(raw_data,lo.count=10,lo.perc=NULL,
@@ -109,7 +110,7 @@ sample.id = list("EP_LRV12_3","EP_LRV12_4","EP_LRV12_5_1",
                  "EP_LRV13_1", "EP_LRV13_2", "EP_LRV13_3",
                  "EP_LRV13_5_1", "EP_LRV14_5_1", "EP_LRV15_5_1",
                  "PP_LRV6_2", "PP_LRV6_3", "PP_LRV7_3",
-                 "PP_LRV7_5_4", "PP_LRV7_4", "PP_LRV8_5_3",
+                 "PP_LRV7_5_4", "PP_LRV7_5", "PP_LRV8_5_3",
                  "PP_LRV9_20", "PP_LRV9_5_1", "PP_LRV9_5_3",
                  "PP_LRV9_6", "PR_LR2_36_01", "PR_LR2_36_02",
                  "PR_LR2_48_01", "PR_LR2_48_02", "PR_LR3_53_01",

@@ -1,12 +1,11 @@
 #!/bin/bash
 
 #PBS -N calling_peaks
-#PBS -l walltime=00:05:00
+#PBS -l walltime=02:00:00
 #PBS -l vmem=20gb
 #PBS -m bea
 #PBS -M hollie_marshall@hotmail.co.uk
 #PBS -l nodes=1:ppn=8
-#PBS -q devel
 
 # Run script in the working directory it was submitted in 
 cd $PBS_O_WORKDIR 
@@ -22,11 +21,10 @@ module load python/gcc/3.6.4
 
 # to get chrom.sizes file
 # pip install pyfaidx
-# faidx PGA_assembly_DmagnaV3.fasta -i chromsizes > PGA_assembly_DmagnaV3.chrom.sizes
-# somewhere along the line each chromosome gets renamed 1-71 urgh
+# faidx Daphnia_magna_LRV0_1.scaffolds.fa -i chromsizes > Daphnia_magna_LRV0_1.scaffolds.chrom.sizes
 
 bedGraphToBigWig=/scratch/monoallelic/hm257/daphnia/bin/bedGraphToBigWig
-chrom_sizes=/scratch/monoallelic/hm257/daphnia/genome/PGA_assembly_DmagnaV3.chrom.sizes
+chrom_sizes=/scratch/monoallelic/hm257/daphnia/genome/Daphnia_magna_LRV0_1.scaffolds.chrom.sizes
 
 source /scratch/monoallelic/hm257/daphnia/bin/venv/bin/activate
 
