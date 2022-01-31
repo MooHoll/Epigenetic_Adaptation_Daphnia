@@ -17,7 +17,7 @@ head(cpgs)
 
 # --------------------------------------------------------------------
 
-genes <- read.delim("Daphnia_magna_LRV0_1_ALL_ANNOTATIONS.txt", header=T)
+genes <- read.delim("Daphnia_magna_LRV0_1_ALL_ANNOTATIONS_numbered_exons.txt", header=T)
 genes$start <- as.numeric(genes$start)
 genes$end <- as.numeric(genes$end)
 head(genes)
@@ -28,7 +28,8 @@ output <- sqldf("SELECT cpgs.chr,
                 genes.feature,
                 genes.start,
                 genes.end,
-                genes.gene_id
+                genes.gene_id,
+                genes.number
                 FROM cpgs AS cpgs
                 LEFT JOIN genes AS genes 
                 ON cpgs.chr = genes.chr
@@ -37,6 +38,6 @@ output <- output[!is.na(output$gene_id),]
 
 output$cpg_counter <- 1
 
-final <- summaryBy(cpg_counter ~ gene_id+chr+start+end+feature, data = output, FUN=sum)
+final <- summaryBy(cpg_counter ~ gene_id+chr+start+end+feature+number, data = output, FUN=sum)
 
 write.table(final, file="Daphnia_magna_LRV0_1_with_total_cpgs.txt", col.names=T, row.names=F, quote=F)
