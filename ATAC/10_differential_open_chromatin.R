@@ -14,35 +14,90 @@ library(apeglm)
 library(tidyr)
 library(readr)
 
-# READ IN SAMPLE DATA AND CONT MATRIX
+# Read in sample matrix and count data matrix
+ATAC_sample_matrix <- read_delim("ATAC_sample_matrix.txt", 
+                                 "\t", escape_double = FALSE, trim_ws = TRUE)
+ATAC_sample_matrix$tech_replicate[is.na(ATAC_sample_matrix$tech_replicate)] <- 1
+ATAC_sample_matrix$collapse_by <- paste0(ATAC_sample_matrix$condition, "-", ATAC_sample_matrix$genotype, "-", ATAC_sample_matrix$bio_replicate)
+
+ATAC_count_matrix <- read_delim("ATAC_count_matrix.txt", 
+                                "\t", escape_double = FALSE, trim_ws = TRUE)
+ATAC_count_matrix <- as.data.frame(ATAC_count_matrix)
+rownames(ATAC_count_matrix) <- ATAC_count_matrix$peak
+ATAC_count_matrix <- ATAC_count_matrix[,-1]
+
+# Convert 0 to 1 to avoid complete separation
+ATAC_count_matrix[ATAC_count_matrix == 0] <- 1
 
 # Make deseq2 object
-dds= DESeqDataSetFromMatrix(countData = countmatrix, colData = sample_info, 
+dds= DESeqDataSetFromMatrix(countData = ATAC_count_matrix, colData = ATAC_sample_matrix, 
                             design = ~ population)
+colData(dds) # 122 samples
+colnames(dds)
+
+# Collapse technical replicates
+ddsColl <- collapseReplicates(dds, groupby= dds$collapse_by)
+colData(ddsColl) # 79 samples
 
 #------------------------------------------------------------------
-# remove features with low counts
-dds = dds[ rowMeans(counts(dds)) > 10, ] 
-nrow(dds) # 58543/58568
+# remove features with low counts - 79 samples, so say 
+dds = ddsColl[ rowMeans(counts(ddsColl)) > 100, ] 
+nrow(dds) # 58450/58568
 
 # rlog transform counts (by average length and correcting for library size)
 rld = rlog(dds, blind=FALSE)
 
 #------------------------------------------------------------------
 # PCA plot
-data = plotPCA(rld, intgroup = c("population"), returnData=TRUE)
+
+# Modify the function to return PC3 and PC4 as well
+# from: http://seqanswers.com/forums/showthread.php?t=66769
+plotPCA <- function (object, intgroup = "condition", ntop = 500, returnData = FALSE) 
+{
+  rv <- rowVars(assay(object))
+  select <- order(rv, decreasing = TRUE)[seq_len(min(ntop, 
+                                                     length(rv)))]
+  pca <- prcomp(t(assay(object)[select, ]))
+  percentVar <- pca$sdev^2/sum(pca$sdev^2)
+  if (!all(intgroup %in% names(colData(object)))) {
+    stop("the argument 'intgroup' should specify columns of colData(dds)")
+  }
+  intgroup.df <- as.data.frame(colData(object)[, intgroup, 
+                                               drop = FALSE])
+  group <- if (length(intgroup) > 1) {
+    factor(apply(intgroup.df, 1, paste, collapse = " : "))
+  }
+  else {
+    colData(object)[[intgroup]]
+  }
+  d <- data.frame(PC1 = pca$x[, 1], PC2 = pca$x[, 2], PC3 = pca$x[, 3], PC4 = pca$x[, 4], group = group, 
+                  intgroup.df, name = colnames(object))
+  if (returnData) {
+    attr(d, "percentVar") <- percentVar[1:2]
+    return(d)
+  }
+  ggplot(data = d, aes_string(x = "PC3", y = "PC4", color = "group")) + 
+    geom_point(size = 3) + xlab(paste0("PC3: ", round(percentVar[1] * 
+                                                        100), "% variance")) + ylab(paste0("PC4: ", round(percentVar[2] * 
+                                                                                                            100), "% variance")) + coord_fixed()
+}
+
+
+data = plotPCA(rld, intgroup = c("population"), ntop = 58450, returnData=TRUE)
 
 percentVar = round(100 * attr(data, "percentVar"))
+nrow(data)
 
+# PC3 and PC4 also show a cloud
 ggplot(data, aes(PC1, PC2, color=population)) + geom_point(size=10) +
   xlab(paste0("PC1: ",percentVar[1],"% variance")) +
   ylab(paste0("PC2: ",percentVar[2],"% variance")) +
   coord_fixed(ratio=2,clip = "on")+
-  geom_text_repel(aes(label=name), size=8,show.legend=FALSE, 
-                  point.padding = 2, box.padding = 1,
-                  segment.color = 'transparent') +
+  #geom_text_repel(aes(label=name), size=8,show.legend=FALSE, 
+  #                point.padding = 2, box.padding = 1,
+  #                segment.color = 'transparent') +
   scale_colour_manual("", breaks=c("CWP","EP","PP","PR"),
-                      values = c("#6699CC","#44AA99","#AA4499","#DDCC77"))+
+                      values = c("#DDCC77","#44AA99","#AA4499","#6699CC"))+
   theme_bw()+
   theme(axis.text=element_text(size=18),
         axis.title=element_text(size=20),
@@ -58,7 +113,6 @@ plot(assay(rld)[,c(1,2)],
 par( mfrow = c( 1, 1 ) )
 
 # estimate size factors = normalize for dispersion
-dds = DESeq2::estimateSizeFactors(dds)
 dds = estimateDispersions(dds)
 plotDispEsts(dds, xlab= "Mean of Normalised Counts",
              ylab= "Dispersion", cex=1.0, cex.lab=1.45, cex.axis=1.45)
@@ -66,44 +120,41 @@ plotDispEsts(dds, xlab= "Mean of Normalised Counts",
 # check sample distances
 sampleDists <- dist(t(assay(rld)))
 sampleDistMatrix <- as.matrix( sampleDists )
-rownames(sampleDistMatrix) <- paste( rld$dex, rld$cell, sep = " - " )
+rownames(sampleDistMatrix) <- paste( rld$population, rld$sample, sep = " - " )
+
 colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
 pheatmap(sampleDistMatrix,
          clustering_distance_rows = sampleDists,
          clustering_distance_cols = sampleDists,
          col = colors,
-         show_colnames = T,
-         fontsize = 18)
+         show_colnames = F,
+         fontsize = 5)
 
 # check sample distances using the poisson method
 poisd <- PoissonDistance(t(counts(dds)))
 samplePoisDistMatrix <- as.matrix( poisd$dd )
-rownames(samplePoisDistMatrix) <- paste( rld$dex, rld$cell, sep=" - " )
+rownames(samplePoisDistMatrix) <- paste( rld$population, rld$sample, sep = " - " )
 pheatmap(samplePoisDistMatrix,
          clustering_distance_rows = poisd$dd,
          clustering_distance_cols = poisd$dd,
          col = colors,
-         show_colnames = T,
-         fontsize = 18)
+         show_colnames = F,
+         fontsize = 5)
 
 #------------------------------------------------------------------
-# differential expression (used Benjamini-Hochberg adjustment and a p-val of <0.1)
+# differential expression (used Benjamini-Hochberg adjustment)
 dds = DESeq2::DESeq(dds, parallel=TRUE)
-resultsNames(dds)
 
-# Male = +Log2FC and Female = -Log2FC
-res=results(dds, name="population_test2_vs_test1")
+#------------------------------------------------------------------
+# change the comparison (first group is more open if positive logFC)
+res=results(dds, contrast=c("population", "PP", "PR"), alpha=0.05)
 summary(res)
 
 #distribution of coefficents of the model
-plotMA(res, ylim=c(-5,5),cex=1.0, cex.lab=1.45, 
+plotMA(res, ylim=c(-4,4),cex=1.0, cex.lab=1.45, 
        cex.axis=1.45, xlab='Mean of Normalised Counts',
-       ylab='Log2 Fold Change')
+       ylab='Log2 Fold Change', main="PP vs PR")
 
-# plot of p-vals excluding genes with very small counts
-hist(res$pvalue[res$baseMean > 1], breaks = 0:20/20,
-     col = "grey50", border = "white", xlab= "P-value", ylab="Frequency",
-     cex.axis=1.45, cex.lab=1.45, main="")
 
 # Order the results by fold change to see the biggest changing genes
 res_ordered=res[order(res$log2FoldChange),]
@@ -111,57 +162,21 @@ head(res_ordered)
 res_ordered<-as.data.frame(res_ordered)
 res_ordered$gene<-rownames(res_ordered)
 rownames(res_ordered)<-c()
-write.table(as.data.frame(res_ordered), file="diff_chrom_peaks_log2FC_all_genes.txt",
+
+write.table(as.data.frame(res_ordered), file="diff_chrom_peaks_log2FC_PPvsPR.txt",
             sep="\t", quote = F, col.names = T, row.names = F)
 
-#out of 12420 with nonzero total read count
-res_significant<- subset(res, log2FoldChange > 2 | log2FoldChange < -2)
+#out of 58450 with nonzero total read count
+res_significant<- subset(res, log2FoldChange > 1.5 | log2FoldChange < -1.5)
 res_significant <- subset(res_significant, padj < 0.05)
-nrow(res_significant) #1077 total differentially open chromatin
-nrow(res_significant[res_significant$log2FoldChange > 2,]) #985 upregulated in males
-nrow(res_significant[res_significant$log2FoldChange < -2,]) #92 upregulated in females
-
-
-#------------------------------------------------------------------
-# heatmap of top differentially expressed
-n=50
-topdiff = head(c(1:nrow(res))[order(res$padj)],n)
-
-my_colors = list(
-  population = c(CWP = "#6699CC", EP ="#44AA99", PP= "#AA4499", PR="#DDCC77"))
-
-mat = assay(rld)[ topdiff, ]
-mat = mat - rowMeans(mat)
-df2 = as.data.frame(colData(rld)[,c("population"),drop=FALSE])
-colnames(df2)<-c("population")
-
-pheatmap(mat, annotation_col=df2,
-         show_rownames = F,
-         fontsize = 16,
-         annotation_colors = my_colors)
-
-#------------------------------------------------------------------
-# Plot diff expressed
-n=12
-selGenes = head(rownames(res)[order(res$padj)],n)
-data = do.call(rbind, lapply(selGenes, function(gene) data.frame(gene=gene, 
-                                                                 plotCounts(dds, gene=gene, intgroup=c("population"), returnData=TRUE))))
-ggplot(data, aes(x=population, y=count, fill=population)) + 
-  geom_boxplot(outlier.color="black", position=position_dodge(width=0.7), width=0.5) + facet_wrap(~gene) +
-  xlab("Population") + ylab("Normalised read count") + 
-  scale_y_log10() + 
-  theme_bw()+
-  theme(axis.text.x = element_blank(),
-        axis.title = element_text(size=20),
-        legend.text=element_text(size=20),
-        axis.text.y=element_text(size=18),
-        plot.title = element_text(size=22))+
-  scale_fill_manual("", breaks=c("CWP","EP","PP","PR"),
-                      values = c("#6699CC","#44AA99","#AA4499","#DDCC77"))
+nrow(res_significant) #X total differentially open chromatin
+nrow(res_significant[res_significant$log2FoldChange > 1.5,]) #X upregulated
+nrow(res_significant[res_significant$log2FoldChange < -1.5,]) #X downregulated
 
 #------------------------------------------------------------------
 # Volcano plot
 res_df <- as.data.frame(res)
+res_df$padj[is.na(res_df$padj)]<-1
 res_df$gene <- row.names(res_df)
 
 res_significant_df <- as.data.frame(res_significant)
@@ -174,19 +189,28 @@ ggplot(res_df, aes(x = log2FoldChange, y = -log10(padj), colour = sig)) +
   geom_point(size=1.5)+
   scale_colour_manual("", breaks=c("no","yes"),
                       values = c("black","red"))+
-  xlim(-10,10)+
+  xlim(-5,5)+
+  ylim(0,6)+
   theme_bw()+
+  ggtitle("PP vs PR")+
   theme(axis.text=element_text(size=18),
         axis.title=element_text(size=20),
-        legend.position = "none")
-
-#------------------------------------------------------------------
-# Pull out a list of just the differentially expressed genes for the supplementary
+        legend.position = "none",
+        title = element_text(size=20))
 
 
+# Do some stats on the number of diff open chromatin regions
+#Comparison Total	More open in first group	More open in second group
+#CWP vs EP	257	183	74: X-squared = 46.23, df = 1, p-value = 1.052e-11
+#CWP vs PP	0	0	0
+#CWP vs PR	125	0	125: X-squared = 125, df = 1, p-value < 2.2e-16
+#EP vs PP	0	0	0
+#EP vs PR	107	0	107: X-squared = 107, df = 1, p-value < 2.2e-16
+#PP vs PR	339	335	4:X-squared = 323.19, df = 1, p-value < 2.2e-16
 
+# Goodness of fit
+observed = c(335, 4)    # observed frequencies 
+expected = c(0.5, 0.5)    # expected proportions
 
-
-
-
-
+chisq.test(x = observed,
+           p = expected)

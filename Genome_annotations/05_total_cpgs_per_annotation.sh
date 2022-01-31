@@ -13,4 +13,4 @@ cd $PBS_O_WORKDIR
 # Load software needed 
 module load R/3.6.1 
 
-R --save -q -f cpgs_per_annotaion.R
+R --save -q -f cpgs_per_annotation.R

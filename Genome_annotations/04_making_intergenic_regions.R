@@ -6,7 +6,7 @@ setwd("~/Dropbox/Birmingham/DmagnaAnnotate26Nov2020")
 library(readr)
 library(dplyr)
 
-merged_annotations <- read_delim("Dcitr_OGSv3.0_beta_longestIsoform_plusIntrons_plusPromoters_plusTEs.txt", 
+merged_annotations <- read_delim("Daphnia_magna_LRV0_1_longestIsoform_plusIntrons_plusPromoters_plusTEs.txt", 
                                  "\t", escape_double = FALSE, trim_ws = TRUE)
 head(merged_annotations)
 
@@ -15,8 +15,9 @@ annotations_cleaner <- merged_annotations[merged_annotations$feature == "gene"|
                                             merged_annotations$feature =="promoter" |
                                             merged_annotations$feature == "TE",]
 annotations_cleaner <- annotations_cleaner[,-c(2,5)]
-              
-# Order the file and make in a format the python script wants, from promoter to 3' UTR
+head(annotations_cleaner)              
+
+# Order the file and make in a format the python script wants
 ordered <- annotations_cleaner %>% arrange(chr, start)
 head(ordered)
 colnames(ordered) <- c("chr","start","end","gene")
@@ -46,10 +47,10 @@ colnames(intergenic_for_sure) <- c("chr","start","end","feature")
 intergenic_for_sure$gene_id <- "intergenic"
 
 # add to other annotations
-head(merged_annotations)
+tail(merged_annotations)
 merged_annotations <- merged_annotations[,-5]
 
 all <- rbind(merged_annotations, intergenic_for_sure)
 
-write.table(all, file="Dcitr_OGSv3.0_beta_longestIsoform_plusIntrons_plusPromoters_plusTEs_plusIntergenic.txt",
+write.table(all, file="Daphnia_magna_LRV0_1_ALL_ANNOTATIONS.txt",
             col.names = T, row.names = F, quote = F, sep = '\t')

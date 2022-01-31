@@ -17,7 +17,7 @@ head(cpgs)
 
 # --------------------------------------------------------------------
 
-genes <- read.delim("Daphnia_magna_LRV0_1_longestIsoform_plusIntrons_plusPromoters.txt", header=T)
+genes <- read.delim("Daphnia_magna_LRV0_1_ALL_ANNOTATIONS.txt", header=T)
 genes$start <- as.numeric(genes$start)
 genes$end <- as.numeric(genes$end)
 head(genes)

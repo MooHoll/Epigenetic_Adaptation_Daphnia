@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -N deduplicating_bams
-#PBS -l walltime=08:00:00
+#PBS -l walltime=06:00:00
 #PBS -l vmem=20gb
 #PBS -m bea
 #PBS -M hollie_marshall@hotmail.co.uk

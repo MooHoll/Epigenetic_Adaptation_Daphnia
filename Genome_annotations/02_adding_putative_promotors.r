@@ -4,49 +4,47 @@
 setwd("~/Dropbox/Birmingham/DmagnaAnnotate26Nov2020")
 library(readr)
 
-Daphnia_magna_LRV0_1 <- read_delim("Daphnia_magna_LRV0_1_longestIsoform_plusIntrons.txt", 
+annotation <- read_delim("Daphnia_magna_LRV0_1_longestIsoform_plusIntrons.txt", 
                                  "\t", escape_double = FALSE, col_names = FALSE, 
                                  trim_ws = TRUE)
-head(Daphnia_magna_LRV0_1)
-Daphnia_magna_LRV0_1 <- Daphnia_magna_LRV0_1[,-c(2,6,8)]
-Daphnia_magna_LRV0_1 <- Daphnia_magna_LRV0_1[!duplicated(Daphnia_magna_LRV0_1),] #0
-colnames(Daphnia_magna_LRV0_1) <- c("chr","feature","start", "end","strand","gene_id")
+tail(annotation)
+annotation <- annotation[,-c(2,6,8)]
+annotation <- annotation[!duplicated(annotation),] #0
+colnames(annotation) <- c("chr","feature","start", "end","strand","gene_id")
 
-upsteam5UTRs <- subset(Daphnia_magna_LRV0_1, feature == "five_prime_UTR")
-upsteam5UTRs <- subset(upsteam5UTRs, strand == "+")
-upsteam3UTRs <- subset(Daphnia_magna_LRV0_1, feature == "three_prime_UTR")
-upsteam3UTRs <- subset(upsteam3UTRs, strand == "-")
+upsteam5UTRs <- subset(annotation, feature == "five_prime_UTR")
 
-upsteam5UTRs$promotor_start <- upsteam5UTRs$start - 500
-upsteam5UTRs <- upsteam5UTRs[upsteam5UTRs$promotor_start > 0,] #0 genes (promotor overlaps scaffold start: removed)
+# Double check for genes with two UTRs! Ahhh ok, it's when there are multiple TSS maybe?
+look <- upsteam5UTRs[duplicated(upsteam5UTRs$gene_id),]
+check <- annotation[annotation$gene_id %in% look$gene_id,]
+range(table(check$gene_id[check$feature=="five_prime_UTR"])) # 2-15 UTRs in the duplicated ones (Nasonia) 2-9 for BB
+check2 <- check[check$feature=="five_prime_UTR",]
+length(unique(look$gene_id)) # 2484/12743
 
-upsteam3UTRs$promotor_start <- upsteam3UTRs$start - 500
-upsteam3UTRs <- upsteam3UTRs[upsteam3UTRs$promotor_start > 0,]
+upsteam5UTRs_pos <- subset(upsteam5UTRs, strand == "+")
+upsteam5UTRs_neg <- subset(upsteam5UTRs, strand == "-")
 
-promoters <- rbind(upsteam3UTRs,upsteam5UTRs)
+upsteam5UTRs_pos$promotor_start <- upsteam5UTRs_pos$start - 500
+upsteam5UTRs_pos <- upsteam5UTRs_pos[upsteam5UTRs_pos$promotor_start > 0,]#0 genes (promotor overlaps scaffold start: removed)
+upsteam5UTRs_pos <- upsteam5UTRs_pos[,-4]
+colnames(upsteam5UTRs_pos)[3] <- "end"
+colnames(upsteam5UTRs_pos)[6] <- "start"
+upsteam5UTRs_pos$feature <- "promoter"
 
-promoters <- promoters[,-4] # rm redundent end column
-colnames(promoters)[3] <- "end"
-colnames(promoters)[6] <- "start"
-promoters$feature <- "promoter"
+upsteam5UTRs_neg$promotor_start <- upsteam5UTRs_neg$end + 500
+upsteam5UTRs_neg <- upsteam5UTRs_neg[upsteam5UTRs_neg$promotor_start > 0,]
+upsteam5UTRs_neg <- upsteam5UTRs_neg[,-3] # rm redundent end column
+colnames(upsteam5UTRs_neg)[3] <- "start"
+colnames(upsteam5UTRs_neg)[6] <- "end"
+upsteam5UTRs_neg$feature <- "promoter"
 
-all <- rbind(Daphnia_magna_LRV0_1,promoters)
+promoters <- rbind(upsteam5UTRs_pos,upsteam5UTRs_neg)
+
+all <- rbind(annotation,promoters)
+
+look <- all[all$gene_id== "Dmagna028519",] # neg gene
+look <- all[all$gene_id== "Dmagna000013",] # pos gene
+
 
 write.table(all, file="Daphnia_magna_LRV0_1_longestIsoform_plusIntrons_plusPromoters.txt ", 
             row.names = F, col.names = T, sep = '\t', quote = F)
-
-# ----
-# Add in the TE annotation as well
-#TEs <- read_delim("Diaci_v3.0.ref.fa.mod.EDTA.intact.txt", 
-#                  "\t", escape_double = FALSE, col_names = FALSE, 
-#                  trim_ws = TRUE)
-
-#head(TEs)
-#TEs <- TEs[,-c(2,6,8)]
-#TEs <- TEs[!duplicated(TEs),] #2
-#TEs$X3 <- "TE"
-#colnames(TEs) <- c("chr","feature","start", "end","strand","gene_id")
-
-#all2 <- rbind(all, TEs)
-#write.table(all2, file="Dcitr_OGSv3.0_beta_longestIsoform_plusIntrons_plusPromoters_plusTEs.txt ", 
-#            row.names = F, col.names = T, sep = '\t', quote = F)

@@ -2,6 +2,7 @@
 
 This project is part of a large collaborative effort run by Dr. Luisa Orsini and Professor John Colbourne at the University of Birmingham, UK. This repository holds all code and analyses used to attempt to identify epigenetic mechanisms of adaptaion. 
 
+<!--
 ---
 
 ## NOTES:
@@ -51,5 +52,8 @@ NOTE: we are currently not planning to add gene expression or phenotypic data (s
 
 ---
 
+-->
+
 For more information please contact:<br/>
 hollie_marshall@hotmail.co.uk
+
